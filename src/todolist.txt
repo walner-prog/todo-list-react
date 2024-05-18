@@ -1,0 +1,94 @@
+import { useState } from 'react';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import { Box, List, ListItem, ListItemText } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import './App.css'; // Importar el archivo CSS con los estilos
+
+function App() {
+  const [todoList, setTodoList] = useState([]);
+  const [name, setName] = useState('');
+  const [filterState, setFilterState] = useState('ALL'); // Estado inicial: Mostrar todas las tareas
+
+  const guardar = () => {
+    setTodoList(list => [...list, { name: name, state: 'TODO' }]);
+    setName(''); // Resetear el input a una cadena vacía
+  };
+
+  const eliminarTarea = (index) => {
+    setTodoList(todoList.filter((item, i) => i !== index));
+  };
+
+  const completarTarea = (index) => {
+    const updatedList = todoList.map((item, i) => {
+      if (i === index) {
+        return { ...item, state: 'DONE' }; // Cambiar el estado de la tarea a 'DONE'
+      }
+      return item;
+    });
+    setTodoList(updatedList);
+  };
+
+  const cambiarEstado = (index, newState) => {
+    const updatedList = todoList.map((item, i) => {
+      if (i === index) {
+        return { ...item, state: newState }; // Cambiar el estado de la tarea
+      }
+      return item;
+    });
+    setTodoList(updatedList);
+  };
+
+  const filtrarPorEstado = (estado) => {
+    if (estado === 'ALL') {
+      return todoList; // Mostrar todas las tareas
+    } else {
+      return todoList.filter(item => item.state === estado); // Filtrar por estado
+    }
+  };
+
+  return (
+    <Box className="container"> {/* Aplicar la clase "container" */}
+      <Stack spacing={2} mt={4}>
+        <TextField
+          label="Nombre de la tarea"
+          variant="outlined"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <Button variant="contained" color="primary" onClick={guardar}>Guardar</Button>
+        <Button variant="outlined" onClick={() => setFilterState('ALL')}>Mostrar todas</Button>
+        <Button variant="outlined" onClick={() => setFilterState('TODO')}>Pendientes</Button>
+        <Button variant="outlined" onClick={() => setFilterState('DOING')}>En progreso</Button>
+        <Button variant="outlined" onClick={() => setFilterState('DONE')}>Completadas</Button>
+      </Stack>
+
+      <div className="task-container m-2"> {/* Aplicar la clase "task-container" */}
+        <h2 className="mt-4">Tareas:</h2>
+        <List>
+          {filtrarPorEstado(filterState).map((item, index) => (
+            <ListItem key={index} className="list-item">
+              
+                
+               
+             <h3 className='me-2'> <ListItemText primary={item.name} /></h3>
+              {(item.state === 'TODO' || item.state === 'DOING') && (
+                <Button variant="contained" color="success" className="me-2 m-2" onClick={() => completarTarea(index)}><CheckCircleIcon /> Completar</Button>
+              )}
+              <Button variant="contained" color="error" className="me-2" onClick={() => eliminarTarea(index)}><DeleteIcon /> Eliminar</Button>
+              {item.state === 'TODO' && (
+                 <Button variant="contained" color="info"  className="me-2" onClick={() => cambiarEstado(index, 'DOING')}><HourglassEmptyIcon /> En Progreso</Button>
+              )}
+            </ListItem>
+            
+          ))}
+        </List>
+      </div>
+    </Box>
+  );
+}
+
+export default App;
